@@ -58,3 +58,33 @@ To look for (and extract) hidden files within files, we can [Binwalk](https://gi
 It looks like a zip, containing an ELF, has been found within the executable. Let's go ahead and look at this file.<br/>
 ![image](https://user-images.githubusercontent.com/88616338/227137880-6bb2fedf-28f6-4f73-ad5a-c064780d06b0.png)
 <br/>That's nice. At least we're going the right way.
+#### String search II
+Since it's another executable, the first thing to do is search for strings...<br/>
+![image](https://user-images.githubusercontent.com/88616338/227140511-6e7465cf-ede2-44a3-81aa-1070f82bc4d1.png)
+<br/>
+Finally a string search that gives us some hope. We get hints of IP addresses and something that looks like part of a flag. We can go ahead a do a quick disassembly now.
+#### Disassembly II
+There are 3 functions, in total, that catch our glimpse<br/>
+![image](https://user-images.githubusercontent.com/88616338/227141274-4212dbfa-b5fd-4e35-8674-11055f38eec5.png)
+<br/>
+We can check the main function first.
+##### main 
+![image](https://user-images.githubusercontent.com/88616338/227141424-54ec5393-16c7-40b1-ba34-88bf483d2e73.png)
+<br/>
+It seems like the main function takes user input and if that user input is equal to a random number, it calls the function "ConnectToDaddy". Otherwise, it calls "getFlag". Let's check out the getFlag function.
+##### getFlag
+![image](https://user-images.githubusercontent.com/88616338/227142553-d40219bb-404c-413f-a3f6-71b8d58dd48f.png)
+<br/>It looks like the function created a socket and sends a string to the socket. Let's see what the string contains. After converting the variable from little to big endian, we get the text <b>"_CUM_T0_TH0S3"</b>. We try combining this with the previous string that we got and we get <b>"G00D_TH1NG5_CUM_T0_TH0S3"</b>. We remember that there was a saying that went like this so we go ahead and Google it. <br/>
+![image](https://user-images.githubusercontent.com/88616338/227143376-c317ec9b-798f-4e73-9e17-87e06bc81ffb.png)
+<br/>This means we're still missing the part that says "who wait". We're still left with one function to analyse and that is "ConnectToDaddy".
+##### ConnectToDaddy
+![image](https://user-images.githubusercontent.com/88616338/227143676-405b6689-3435-464c-8406-11258e1ce46f.png)
+This function just creates and connects to a socket and then reads from it. Could this be the way to get the final part of the flag? Let's see. We go ahead an retrieve the IP Address ```34.143.174.53``` and port ```19000```, so we can connect to the server manually using netcat andddd we get the rest of the flag!!! 
+```
+# nc 34.143.174.53 19000
+_WH0_W41T555555
+```
+
+## Conclusion
+If a challenge belongs to a specific category, it doesn't mean it can't contain characteristics of other categories. As an attacker, you need to look for any possibility to exploit. Your target won't tell you the category of their vulnerabilities. 
+
